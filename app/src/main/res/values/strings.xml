@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">md_android_notebook</string>
     <string name="save_button_label">Save</string>
+    <string name="delete_button_label">Delete</string>
 </resources>

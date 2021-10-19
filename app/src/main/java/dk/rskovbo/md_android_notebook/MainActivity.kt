@@ -24,12 +24,13 @@ class MainActivity : AppCompatActivity() {
 
         listView = findViewById(R.id.listView)
         listView.adapter = adapter
-        listView.setOnItemClickListener{ parent, view, position, id ->
+        listView.setOnItemClickListener{ _, _, position, _ ->
             currentIndex = position
             val element = adapter.getItem(position)
             val intent = NoteActivity.newIntent(this, element as MovieItem)
             startActivity(intent)
         }
+
     }
 
     override fun onResume() {

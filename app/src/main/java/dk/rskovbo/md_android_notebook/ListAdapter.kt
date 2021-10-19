@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import android.widget.Button
 import android.widget.TextView
 
 class ListAdapter(private val context: Context, private val dataSource: ArrayList<MovieItem>): BaseAdapter() {
@@ -35,7 +36,19 @@ class ListAdapter(private val context: Context, private val dataSource: ArrayLis
         titleTextView.text = movieItem.title
         bodyTextView.text = movieItem.body
 
+        val deleteButton: Button = rowView.findViewById(R.id.deleteButton)
+        deleteButton.setOnClickListener {
+            deleteItem(position)
+        }
+
+
         return rowView
     }
+
+    fun deleteItem(position: Int) {
+        MainActivity.noteItems.removeAt(position)
+        notifyDataSetChanged()
+    }
+
 
 }
