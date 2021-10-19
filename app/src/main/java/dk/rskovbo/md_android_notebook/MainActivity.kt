@@ -6,23 +6,35 @@ import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
-    lateinit var listView: ListView
+    private lateinit var listView: ListView
+    private lateinit var adapter: ListAdapter
+
+    companion object {
+        var currentIndex = -1
+        lateinit var noteItems: ArrayList<MovieItem>
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         setTitle("Notebook")
+        noteItems = getMovieItems()
+        adapter = ListAdapter(this, noteItems)
 
         listView = findViewById(R.id.listView)
-        val adapter = ListAdapter(this, getMovieItems())
         listView.adapter = adapter
         listView.setOnItemClickListener{ parent, view, position, id ->
+            currentIndex = position
             val element = adapter.getItem(position)
             val intent = NoteActivity.newIntent(this, element as MovieItem)
             startActivity(intent)
         }
+    }
 
+    override fun onResume() {
+        super.onResume()
+        adapter.notifyDataSetChanged()
     }
 
     fun getMovieItems(): ArrayList<MovieItem> {

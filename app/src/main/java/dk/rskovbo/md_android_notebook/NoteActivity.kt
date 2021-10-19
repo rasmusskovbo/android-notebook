@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
+import android.widget.Button
 import android.widget.EditText
 
 class NoteActivity : AppCompatActivity() {
@@ -14,12 +15,18 @@ class NoteActivity : AppCompatActivity() {
 
         val title = intent.extras?.getString(TITLE)
         val body = intent.extras?.getString(BODY)
-
         val editText: EditText = findViewById(R.id.editText)
-
         setTitle(title)
         editText.setText(body)
 
+        val saveButton: Button = findViewById(R.id.saveButton)
+        saveButton.setOnClickListener{
+            saveBody(editText.text.toString())
+        }
+    }
+
+    fun saveBody(editedBody: String) {
+        MainActivity.noteItems.get(MainActivity.currentIndex).body = editedBody
     }
 
     companion object {
