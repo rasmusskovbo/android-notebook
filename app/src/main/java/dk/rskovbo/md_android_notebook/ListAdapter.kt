@@ -1,6 +1,7 @@
 package dk.rskovbo.md_android_notebook
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +11,7 @@ import android.widget.*
 class ListAdapter(private val context: Context, private val dataSource: ArrayList<NoteItem>): BaseAdapter() {
 
     private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    lateinit var builder: AlertDialog.Builder
 
     override fun getCount(): Int {
         return dataSource.size

@@ -41,6 +41,7 @@ class MainActivity : AppCompatActivity() {
             // Update listview
             adapter.notifyDataSetChanged()
         }
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,6 +62,9 @@ class MainActivity : AppCompatActivity() {
             val intent = NoteActivity.newIntent(this, element as NoteItem)
             startActivity(intent)
         }
+
+        //addMovieItems(1)
+        //adapter.notifyDataSetChanged()
     }
 
     // Connect menu layout to toolbar
@@ -132,6 +136,36 @@ class MainActivity : AppCompatActivity() {
                 NoteItem(
                     "Interstellar",
                     "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival."
+                )
+            )
+            listItems.add(
+                NoteItem(
+                    "Edge of Tomorrow",
+                    "Edge of Tomorrow takes place in a future where most of Europe is invaded by an alien race. Major William Cage (Cruise), a public relations officer with limited combat experience, is forced by his superiors to join a landing operation against the aliens, only to find himself experiencing a time loop as he tries to find a way to defeat the invaders. "
+                )
+            )
+            listItems.add(
+                NoteItem(
+                    "Sunshine",
+                    "A team of international astronauts are sent on a dangerous mission to reignite the dying Sun with a nuclear fission bomb in 2057."
+                )
+            )
+            listItems.add(
+                NoteItem(
+                    "Armageddon",
+                    "After discovering that an asteroid the size of Texas is going to impact Earth in less than a month, NASA recruits a misfit team of deep-core drillers to save the planet."
+                )
+            )
+            listItems.add(
+                NoteItem(
+                    "Men In Black",
+                    "A police officer joins a secret organization that polices and monitors extraterrestrial interactions on Earth."
+                )
+            )
+            listItems.add(
+                NoteItem(
+                    "Blade Runner",
+                    "A blade runner must pursue and terminate four replicants who stole a ship in space, and have returned to Earth to find their creator."
                 )
             )
             listItems.forEach {

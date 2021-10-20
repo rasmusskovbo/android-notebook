@@ -74,6 +74,7 @@ class NoteActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.save_note -> {
             MainActivity.saveNote(editTitle.text.toString(), editBody.text.toString())
+            Toast.makeText(applicationContext, "Note saved", Toast.LENGTH_SHORT).show()
             true
         }
         R.id.delete_note -> {
