@@ -18,14 +18,25 @@ class NoteActivity : AppCompatActivity() {
         setTitle(title)
         editText.setText(body)
 
-        val saveButton: Button = findViewById(R.id.saveButton)
-        saveButton.setOnClickListener{
+        findViewById<Button>(R.id.saveButton).setOnClickListener{
             saveBody(editText.text.toString())
+        }
+
+        findViewById<Button>(R.id.deleteButton).setOnClickListener{
+            deleteItemInNote(this)
         }
     }
 
+    // TODO Move to main activity and refactor
     fun saveBody(editedBody: String) {
         MainActivity.noteItems.get(MainActivity.currentIndex).body = editedBody
+    }
+
+    fun deleteItemInNote(context: Context) {
+        val position = MainActivity.currentIndex
+        ListAdapter.deleteItem(position)
+        finish()
+        //startActivity(Intent(context, MainActivity::class.java))
     }
 
     companion object {

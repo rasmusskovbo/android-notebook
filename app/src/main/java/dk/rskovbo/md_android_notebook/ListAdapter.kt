@@ -8,6 +8,9 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.Button
 import android.widget.TextView
+import com.google.firebase.firestore.ktx.toObject
+import dk.rskovbo.md_android_notebook.MainActivity.Companion.db
+import dk.rskovbo.md_android_notebook.MainActivity.Companion.noteItems
 
 class ListAdapter(private val context: Context, private val dataSource: ArrayList<MovieItem>): BaseAdapter() {
 
@@ -44,11 +47,25 @@ class ListAdapter(private val context: Context, private val dataSource: ArrayLis
 
         return rowView
     }
+    companion object {
+        fun deleteItem(position: Int) {
+            // Local
+            val itemToRemove = noteItems.get(position)
+            noteItems.remove(itemToRemove)
 
-    fun deleteItem(position: Int) {
-        MainActivity.noteItems.removeAt(position)
-        notifyDataSetChanged()
+            val docRef = MainActivity.db.collection("notes")
+            // Firestore
+            docRef.get().addOnSuccessListener { document ->
+                document?.forEach {
+                    if (it.get("title") == itemToRemove.title) {
+                        db.collection("notes").document(it.id).delete()
+                    }
+                }
+            }
+            MainActivity.adapter.notifyDataSetChanged()
+        }
     }
+
 
 
 }
