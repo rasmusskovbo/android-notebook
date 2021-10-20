@@ -1,6 +1,5 @@
 package dk.rskovbo.md_android_notebook
 
-import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.view.LayoutInflater
@@ -25,23 +24,46 @@ class ListAdapter(private val context: Context, private val dataSource: ArrayLis
         return position.toLong()
     }
 
-    @SuppressLint("ViewHolder")
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val rowView = inflater.inflate(R.layout.list_item_layout, parent, false)
+        val view: View
+        val holder: ViewHolder
 
-        val titleTextView = rowView.findViewById<TextView>(R.id.title)
-        val bodyTextView = rowView.findViewById<TextView>(R.id.body)
+        // Only inflate first time
+        if (convertView == null) {
 
-        val movieItem = getItem(position) as NoteItem
-        titleTextView.text = movieItem.title
-        bodyTextView.text = movieItem.body
+            view = inflater.inflate(R.layout.list_item_layout, parent, false)
 
-        val deleteButton: Button = rowView.findViewById(R.id.deleteButton)
+            holder = ViewHolder()
+            holder.titleTextView = view.findViewById(R.id.title) as TextView
+            holder.bodyTextView = view.findViewById(R.id.body) as TextView
+
+            view.tag = holder
+        } else {
+            // Get the view as created before
+            view = convertView
+            holder = convertView.tag as ViewHolder
+        }
+
+        // Get subviews
+        val titleTextView = holder.titleTextView
+        val bodyTextView = holder.bodyTextView
+
+        // Set subviews
+        val noteItem = getItem(position) as NoteItem
+        titleTextView.text = noteItem.title
+        bodyTextView.text = noteItem.body
+
+        val deleteButton: Button = view.findViewById(R.id.deleteButton)
         deleteButton.setOnClickListener {
             MainActivity.deleteNote(position)
         }
 
-        return rowView
+        return view
+    }
+
+    private class ViewHolder {
+        lateinit var titleTextView: TextView
+        lateinit var bodyTextView: TextView
     }
 
 }
