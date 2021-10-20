@@ -1,18 +1,13 @@
 package dk.rskovbo.md_android_notebook
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import android.widget.ListAdapter
-import com.google.firebase.firestore.ktx.toObject
-import dk.rskovbo.md_android_notebook.MainActivity.Companion.db
-import dk.rskovbo.md_android_notebook.MainActivity.Companion.noteItems
 
-class ListAdapter(private val context: Context, private val dataSource: ArrayList<MovieItem>): BaseAdapter() {
+class ListAdapter(private val context: Context, private val dataSource: ArrayList<NoteItem>): BaseAdapter() {
 
     private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
@@ -35,32 +30,16 @@ class ListAdapter(private val context: Context, private val dataSource: ArrayLis
         val titleTextView = rowView.findViewById<TextView>(R.id.title)
         val bodyTextView = rowView.findViewById<TextView>(R.id.body)
 
-        val movieItem = getItem(position) as MovieItem
+        val movieItem = getItem(position) as NoteItem
         titleTextView.text = movieItem.title
         bodyTextView.text = movieItem.body
 
         val deleteButton: Button = rowView.findViewById(R.id.deleteButton)
         deleteButton.setOnClickListener {
-            deleteItem(position)
+            MainActivity.deleteNote(position)
         }
 
         return rowView
     }
-    companion object {
-        fun deleteItem(position: Int) {
-
-            // Local
-            val itemToRemove = noteItems.get(position)
-            noteItems.remove(itemToRemove)
-
-            // Fstore
-            db.collection("notes").document(itemToRemove.noteId).delete()
-
-            // Update listview
-            MainActivity.adapter.notifyDataSetChanged()
-        }
-    }
-
-
 
 }

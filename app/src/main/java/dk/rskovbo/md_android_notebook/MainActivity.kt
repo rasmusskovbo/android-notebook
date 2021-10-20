@@ -12,12 +12,35 @@ import com.google.firebase.ktx.Firebase
 class MainActivity : AppCompatActivity() {
     private lateinit var listView: ListView
 
-    // Static objects. Look into removing dp and adapter references as suggested
+    // TODO How to refactor to maintain functionality but avoid memory leaks as suggested?
     companion object {
         var currentIndex = -1
-        lateinit var noteItems: ArrayList<MovieItem>
+        lateinit var noteItems: ArrayList<NoteItem>
         lateinit var adapter: ListAdapter
         val db = Firebase.firestore
+
+        fun saveNote(editedTitle: String, editedBody: String) {
+            val currentNote = noteItems[currentIndex]
+
+            val item = NoteItem(editedTitle, editedBody, currentNote.noteId)
+            noteItems[currentIndex] = item
+
+            db.collection("notes").document(item.noteId).set(item)
+
+            adapter.notifyDataSetChanged()
+        }
+
+        fun deleteNote(position: Int) {
+            // Local
+            val itemToRemove = noteItems[position]
+            noteItems.remove(itemToRemove)
+
+            // Fstore
+            db.collection("notes").document(itemToRemove.noteId).delete()
+
+            // Update listview
+            adapter.notifyDataSetChanged()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         listView.setOnItemClickListener{ _, _, position, _ ->
             currentIndex = position
             val element = adapter.getItem(position)
-            val intent = NoteActivity.newIntent(this, element as MovieItem)
+            val intent = NoteActivity.newIntent(this, element as NoteItem)
             startActivity(intent)
         }
     }
@@ -65,7 +88,7 @@ class MainActivity : AppCompatActivity() {
 
     // Add note to list & firestore
     fun addNote() {
-        val newNote = MovieItem()
+        val newNote = NoteItem()
         newNote.title = "New note"
         newNote.body = "..."
 
@@ -82,12 +105,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Get data from firestore
-    fun getMovieItems(): ArrayList<MovieItem> {
-        var listItems = arrayListOf<MovieItem>()
+    fun getMovieItems(): ArrayList<NoteItem> {
+        var listItems = arrayListOf<NoteItem>()
         val docRef = db.collection("notes")
         docRef.get().addOnSuccessListener { document ->
             document?.forEach {
-                val movieItem = it.toObject<MovieItem>()
+                val movieItem = it.toObject<NoteItem>()
                 listItems.add(movieItem)
             }
         }
@@ -99,21 +122,21 @@ class MainActivity : AppCompatActivity() {
     // Create and upload mock data
     fun setMovieItems(loops: Int) {
         for(i in 1..loops) {
-            val listItems = arrayListOf<MovieItem>()
+            val listItems = arrayListOf<NoteItem>()
             listItems.add(
-                MovieItem(
+                NoteItem(
                     "Star Wars V",
                     "The Empire Strikes Back (also known as Star Wars: Episode V – The Empire Strikes Back) is a 1980 American epic space opera film directed by Irvin Kershner"
                 )
             )
             listItems.add(
-                MovieItem(
+                NoteItem(
                     "Dune",
                     "A mythic and emotionally charged hero's journey, \"Dune\" tells the story of Paul Atreides, a brilliant and gifted young man born into a great destiny beyond his understanding"
                 )
             )
             listItems.add(
-                MovieItem(
+                NoteItem(
                     "Interstellar",
                     "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival."
                 )

@@ -1,6 +1,6 @@
 package dk.rskovbo.md_android_notebook
 
-class MovieItem(
+class NoteItem(
     var title: String = "",
     var body: String = "",
     var noteId: String = ""
