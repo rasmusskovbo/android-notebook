@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/add_note"
-        android:icon="@drawable/baseline_note_add_black_24dp"
+        android:icon="@drawable/baseline_note_add_grey_600_24dp"
         android:title="@string/add_note"
         app:showAsAction="always"/>
 

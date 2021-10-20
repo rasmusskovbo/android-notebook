@@ -1,13 +1,13 @@
 package dk.rskovbo.md_android_notebook
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.Button
-import android.widget.TextView
+import android.widget.*
+import android.widget.ListAdapter
 import com.google.firebase.firestore.ktx.toObject
 import dk.rskovbo.md_android_notebook.MainActivity.Companion.db
 import dk.rskovbo.md_android_notebook.MainActivity.Companion.noteItems
@@ -44,24 +44,19 @@ class ListAdapter(private val context: Context, private val dataSource: ArrayLis
             deleteItem(position)
         }
 
-
         return rowView
     }
     companion object {
         fun deleteItem(position: Int) {
+
             // Local
             val itemToRemove = noteItems.get(position)
             noteItems.remove(itemToRemove)
 
-            val docRef = MainActivity.db.collection("notes")
-            // Firestore
-            docRef.get().addOnSuccessListener { document ->
-                document?.forEach {
-                    if (it.get("title") == itemToRemove.title) {
-                        db.collection("notes").document(it.id).delete()
-                    }
-                }
-            }
+            // Fstore
+            db.collection("notes").document(itemToRemove.noteId).delete()
+
+            // Update listview
             MainActivity.adapter.notifyDataSetChanged()
         }
     }

@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity() {
 
     // Connect menu layout to toolbar
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.toolbar_menu_items, menu)
+        menuInflater.inflate(R.menu.list_note_toolbar, menu)
         return true
     }
 
@@ -65,9 +65,19 @@ class MainActivity : AppCompatActivity() {
 
     // Add note to list & firestore
     fun addNote() {
-        val newNote = MovieItem("New Note", "...")
+        val newNote = MovieItem()
+        newNote.title = "New note"
+        newNote.body = "..."
+
+        // Any way to mash them together?
+        val newDocRef = db.collection("notes").document()
+        val newID = newDocRef.id
+
+        newNote.noteId = newID
+
+        db.collection("notes").document(newNote.noteId).set(newNote)
+
         noteItems.add(newNote)
-        db.collection("notes").add(newNote)
         adapter.notifyDataSetChanged()
     }
 
@@ -78,7 +88,6 @@ class MainActivity : AppCompatActivity() {
         docRef.get().addOnSuccessListener { document ->
             document?.forEach {
                 val movieItem = it.toObject<MovieItem>()
-                println(movieItem.title + ", " + movieItem.body)
                 listItems.add(movieItem)
             }
         }
