@@ -47,10 +47,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        //setMovieItems(1)
-
         setSupportActionBar(findViewById(R.id.top_toolbar))
-        val toolbar = supportActionBar
 
         setTitle("Notebook")
         noteItems = getMovieItems()
@@ -74,7 +71,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.add_note -> {
-            addNote()
+            addNote("", "...")
             true
         }
         else -> super.onOptionsItemSelected(item)
@@ -87,17 +84,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Add note to list & firestore
-    fun addNote() {
-        val newNote = NoteItem()
-        newNote.title = "New note"
-        newNote.body = "..."
+    fun addNote(title: String, body: String) {
+        val newNote = NoteItem(title, body)
 
-        // Any way to mash them together?
         val newDocRef = db.collection("notes").document()
-        val newID = newDocRef.id
+        val generatedID = newDocRef.id
 
-        newNote.noteId = newID
-
+        newNote.noteId = generatedID
         db.collection("notes").document(newNote.noteId).set(newNote)
 
         noteItems.add(newNote)
@@ -120,7 +113,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Create and upload mock data
-    fun setMovieItems(loops: Int) {
+    fun addMovieItems(loops: Int) {
         for(i in 1..loops) {
             val listItems = arrayListOf<NoteItem>()
             listItems.add(
@@ -142,7 +135,7 @@ class MainActivity : AppCompatActivity() {
                 )
             )
             listItems.forEach {
-                db.collection("notes").add(it)
+                addNote(it.title, it.body)
             }
         }
 
