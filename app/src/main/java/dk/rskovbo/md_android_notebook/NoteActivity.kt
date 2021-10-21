@@ -3,21 +3,27 @@ package dk.rskovbo.md_android_notebook
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import java.io.IOException
+
 
 class NoteActivity : AppCompatActivity() {
     lateinit var editTitle: EditText
     lateinit var editBody: EditText
     lateinit var builder: AlertDialog.Builder
     lateinit var noteImage: ImageView
-    var title: String? = ""
-    var body: String? = ""
+    lateinit var filePath: Uri
+    private val PICK_IMAGE_REQUEST = 234
+    private var title: String? = ""
+    private var body: String? = ""
 
     companion object {
         const val TITLE = "title"
@@ -57,6 +63,7 @@ class NoteActivity : AppCompatActivity() {
         setTitle("Notebook")
         editTitle.setText(title)
         editBody.setText(body)
+        MainActivity.downloadImage(MainActivity.noteItems[MainActivity.currentIndex].noteId, noteImage)
     }
 
     private fun buildAlert() {
@@ -71,6 +78,27 @@ class NoteActivity : AppCompatActivity() {
         }
     }
 
+    private fun showFileChooser() {
+        val intent = Intent()
+        intent.type = "image/*"
+        intent.action = Intent.ACTION_GET_CONTENT
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST)
+    }
+
+    //handling the image chooser activity result
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.data != null) {
+            filePath = data.data!!
+            try {
+                val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, filePath)
+                noteImage.setImageBitmap(bitmap)
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     // Connect menu layout to toolbar
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.show_note_toolbar, menu)
@@ -79,6 +107,10 @@ class NoteActivity : AppCompatActivity() {
 
     // Assign actions to toolbar items
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.choose_image -> {
+            showFileChooser()
+            true
+        }
         R.id.save_note -> {
             MainActivity.saveNote(editTitle.text.toString(), editBody.text.toString())
             MainActivity.saveImage(noteImage)

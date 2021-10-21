@@ -1,13 +1,17 @@
 package dk.rskovbo.md_android_notebook
 
+import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
+import android.media.Image
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
 import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
@@ -25,6 +29,7 @@ class MainActivity : AppCompatActivity() {
         val db = Firebase.firestore
         val storage = Firebase.storage
 
+        // TODO Refactor functions to service class with DB reference if possible.
         fun saveNote(editedTitle: String, editedBody: String) {
             val currentNote = noteItems[currentIndex]
 
@@ -39,19 +44,42 @@ class MainActivity : AppCompatActivity() {
         fun saveImage(image: ImageView) {
             val imageId = noteItems[currentIndex].noteId
 
-            var storageRef = storage.reference.child("images")
-            var imageRef = storageRef.child(imageId)
+            // Get reference to image container and set name as noteID
+            val storageRef = storage.reference.child("images")
+            val imageRef = storageRef.child(imageId)
 
+            // Convert image to byte
             val bitmap = (image.drawable as BitmapDrawable).bitmap
             val baos = ByteArrayOutputStream()
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
             val data = baos.toByteArray()
 
-            var uploadTask = imageRef.putBytes(data)
+            // Upload byte
+            val uploadTask = imageRef.putBytes(data)
             uploadTask.addOnSuccessListener {
                 print("Successfully uploaded image")
             }
 
+        }
+
+        fun downloadImage(imageId: String, imageView: ImageView) {
+            val storageRef = storage.reference.child("images")
+            val imageRef = storageRef.child(imageId)
+
+            // Max size to avoid crashing app due to memory usage
+            val ONE_MEGABYTE: Long = 1024 * 1024
+            imageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener {
+                // Sets the passed imageview reference to the downloaded bitmap version of the image
+                imageView.setImageBitmap(BitmapFactory.decodeByteArray(it, 0, it.size))
+            }.addOnFailureListener {
+                print("Failed to download image")
+            }
+        }
+
+
+
+        fun deleteImage() {
+            // TODO
         }
 
         fun deleteNote(position: Int) {
@@ -140,7 +168,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         // Async workaround
-        Thread.sleep(1_000)
+        Thread.sleep(2_000)
         return listItems
     }
 
