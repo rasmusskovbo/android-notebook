@@ -1,13 +1,18 @@
 package dk.rskovbo.md_android_notebook
 
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.ImageView
 import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
+import java.io.ByteArrayOutputStream
 
 class MainActivity : AppCompatActivity() {
     private lateinit var listView: ListView
@@ -18,6 +23,7 @@ class MainActivity : AppCompatActivity() {
         lateinit var noteItems: ArrayList<NoteItem>
         lateinit var adapter: ListAdapter
         val db = Firebase.firestore
+        val storage = Firebase.storage
 
         fun saveNote(editedTitle: String, editedBody: String) {
             val currentNote = noteItems[currentIndex]
@@ -28,6 +34,24 @@ class MainActivity : AppCompatActivity() {
             db.collection("notes").document(item.noteId).set(item)
 
             adapter.notifyDataSetChanged()
+        }
+
+        fun saveImage(image: ImageView) {
+            val imageId = noteItems[currentIndex].noteId
+
+            var storageRef = storage.reference.child("images")
+            var imageRef = storageRef.child(imageId)
+
+            val bitmap = (image.drawable as BitmapDrawable).bitmap
+            val baos = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+            val data = baos.toByteArray()
+
+            var uploadTask = imageRef.putBytes(data)
+            uploadTask.addOnSuccessListener {
+                print("Successfully uploaded image")
+            }
+
         }
 
         fun deleteNote(position: Int) {
@@ -50,21 +74,25 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(findViewById(R.id.top_toolbar))
 
+        setupView()
+
+        //addMovieItems(1)
+        //adapter.notifyDataSetChanged()
+    }
+
+    private fun setupView() {
         setTitle("Notebook")
         noteItems = getMovieItems()
         adapter = ListAdapter(this, noteItems)
 
         listView = findViewById(R.id.listView)
         listView.adapter = adapter
-        listView.setOnItemClickListener{ _, _, position, _ ->
+        listView.setOnItemClickListener { _, _, position, _ ->
             currentIndex = position
             val element = adapter.getItem(position)
             val intent = NoteActivity.newIntent(this, element as NoteItem)
             startActivity(intent)
         }
-
-        //addMovieItems(1)
-        //adapter.notifyDataSetChanged()
     }
 
     // Connect menu layout to toolbar

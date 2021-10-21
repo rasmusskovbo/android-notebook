@@ -8,12 +8,14 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 
 class NoteActivity : AppCompatActivity() {
     lateinit var editTitle: EditText
     lateinit var editBody: EditText
     lateinit var builder: AlertDialog.Builder
+    lateinit var noteImage: ImageView
     var title: String? = ""
     var body: String? = ""
 
@@ -35,20 +37,29 @@ class NoteActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_note)
 
+        setupViewData()
+        buildAlert()
+        setSupportActionBar(findViewById(R.id.top_toolbar))
+
+    }
+
+    private fun setupViewData() {
         // Cache data passed to through intent
         title = intent.extras?.getString(TITLE)
         body = intent.extras?.getString(BODY)
 
-        // Caches text views
+        // Caches views
         editBody = findViewById(R.id.editBody)
         editTitle = findViewById(R.id.editTitle)
+        noteImage = findViewById(R.id.noteImage)
 
         // Set data of views
         setTitle("Notebook")
         editTitle.setText(title)
         editBody.setText(body)
+    }
 
-        // Build alert for deletion
+    private fun buildAlert() {
         builder = AlertDialog.Builder(this)
         builder.setTitle("Confirm deletion")
         builder.setMessage("Please confirm deletion.")
@@ -58,10 +69,6 @@ class NoteActivity : AppCompatActivity() {
         builder.setNegativeButton("Cancel") { dialog, which ->
             Toast.makeText(applicationContext, "Deletion cancelled", Toast.LENGTH_SHORT).show()
         }
-
-        // Assign toolbar
-        setSupportActionBar(findViewById(R.id.top_toolbar))
-
     }
 
     // Connect menu layout to toolbar
@@ -74,6 +81,7 @@ class NoteActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.save_note -> {
             MainActivity.saveNote(editTitle.text.toString(), editBody.text.toString())
+            MainActivity.saveImage(noteImage)
             Toast.makeText(applicationContext, "Note saved", Toast.LENGTH_SHORT).show()
             true
         }
