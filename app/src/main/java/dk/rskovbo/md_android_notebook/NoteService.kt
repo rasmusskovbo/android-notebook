@@ -4,19 +4,51 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.widget.ImageView
+import com.google.firebase.firestore.ktx.toObject
 import java.io.ByteArrayOutputStream
 
-// TODO possibly refactor note handling functionality to here
 class NoteService {
     private val repo: Repo = Repo()
 
-    fun saveNote(editedTitle: String, editedBody: String) {
+    // Retrieve all notes from Firebase and bind to list
+    fun getAllNotes(): ArrayList<NoteItem> {
+        var listItems = arrayListOf<NoteItem>()
+        val docRef = repo.db.collection("notes")
+        docRef.get().addOnSuccessListener { document ->
+            document?.forEach {
+                val movieItem = it.toObject<NoteItem>()
+                listItems.add(movieItem)
+            }
+        }
+        // Async workaround
+        Thread.sleep(2_000)
+        return listItems
+    }
+
+    fun addNote(newNote: NoteItem) {
+        val newDocRef = repo.db.collection("notes").document()
+        val generatedID = newDocRef.id
+
+        newNote.noteId = generatedID
+        repo.db.collection("notes").document(newNote.noteId).set(newNote)
+    }
+
+    fun updateNote(editedTitle: String, editedBody: String) {
         val currentNote = MainActivity.noteItems[MainActivity.currentIndex]
 
         val item = NoteItem(editedTitle, editedBody, currentNote.noteId)
         MainActivity.noteItems[MainActivity.currentIndex] = item
 
         repo.db.collection("notes").document(item.noteId).set(item)
+    }
+
+    fun deleteNote(position: Int) {
+        // Local
+        val itemToRemove = MainActivity.noteItems[position]
+        MainActivity.noteItems.remove(itemToRemove)
+
+        // Firebase
+        repo.db.collection("notes").document(itemToRemove.noteId).delete()
     }
 
     fun saveImage(image: ImageView) {
@@ -53,17 +85,73 @@ class NoteService {
         }
     }
 
-    fun deleteImage() {
-        // TODO
+    fun deleteImage(imageId: String) {
+        println(imageId)
+        val storageRef = repo.storage.reference.child("images")
+        val imageRef = storageRef.child(imageId)
+
+        imageRef.delete()
+
+        // Todo possibly add onSuccess or onFailure listeners
     }
 
-    fun deleteNote(position: Int) {
-        // Local
-        val itemToRemove = MainActivity.noteItems[position]
-        MainActivity.noteItems.remove(itemToRemove)
-
-        // Fstore
-        repo.db.collection("notes").document(itemToRemove.noteId).delete()
+    //////////
+    // Function for adding mock data
+    fun addMovieItems(loops: Int) {
+        for(i in 1..loops) {
+            val listItems = arrayListOf<NoteItem>()
+            listItems.add(
+                NoteItem(
+                    "Star Wars V",
+                    "The Empire Strikes Back (also known as Star Wars: Episode V – The Empire Strikes Back) is a 1980 American epic space opera film directed by Irvin Kershner"
+                )
+            )
+            listItems.add(
+                NoteItem(
+                    "Dune",
+                    "A mythic and emotionally charged hero's journey, \"Dune\" tells the story of Paul Atreides, a brilliant and gifted young man born into a great destiny beyond his understanding"
+                )
+            )
+            listItems.add(
+                NoteItem(
+                    "Interstellar",
+                    "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival."
+                )
+            )
+            listItems.add(
+                NoteItem(
+                    "Edge of Tomorrow",
+                    "Edge of Tomorrow takes place in a future where most of Europe is invaded by an alien race. Major William Cage (Cruise), a public relations officer with limited combat experience, is forced by his superiors to join a landing operation against the aliens, only to find himself experiencing a time loop as he tries to find a way to defeat the invaders. "
+                )
+            )
+            listItems.add(
+                NoteItem(
+                    "Sunshine",
+                    "A team of international astronauts are sent on a dangerous mission to reignite the dying Sun with a nuclear fission bomb in 2057."
+                )
+            )
+            listItems.add(
+                NoteItem(
+                    "Armageddon",
+                    "After discovering that an asteroid the size of Texas is going to impact Earth in less than a month, NASA recruits a misfit team of deep-core drillers to save the planet."
+                )
+            )
+            listItems.add(
+                NoteItem(
+                    "Men In Black",
+                    "A police officer joins a secret organization that polices and monitors extraterrestrial interactions on Earth."
+                )
+            )
+            listItems.add(
+                NoteItem(
+                    "Blade Runner",
+                    "A blade runner must pursue and terminate four replicants who stole a ship in space, and have returned to Earth to find their creator."
+                )
+            )
+            listItems.forEach {
+                addNote(NoteItem(it.title, it.body))
+            }
+        }
     }
 
 

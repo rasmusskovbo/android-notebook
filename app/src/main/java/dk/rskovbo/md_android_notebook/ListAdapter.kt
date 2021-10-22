@@ -6,11 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 
-class ListAdapter(private val context: Context, private val dataSource: ArrayList<NoteItem>): BaseAdapter() {
+class ListAdapter(context: Context, private val dataSource: ArrayList<NoteItem>): BaseAdapter() {
 
     private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     private val noteService = NoteService()
-    private val mainActivity = MainActivity()
 
     override fun getCount(): Int {
         return dataSource.size
@@ -24,6 +23,7 @@ class ListAdapter(private val context: Context, private val dataSource: ArrayLis
         return position.toLong()
     }
 
+    // Viewholder pattern
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         val view: View
         val holder: ViewHolder

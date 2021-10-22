@@ -19,13 +19,14 @@ class NoteActivity : AppCompatActivity() {
     lateinit var editTitle: EditText
     lateinit var editBody: EditText
     lateinit var builder: AlertDialog.Builder
-    lateinit var noteImage: ImageView
     lateinit var filePath: Uri
+    private lateinit var noteImage: ImageView
     private val PICK_IMAGE_REQUEST = 234
     private var title: String? = ""
     private var body: String? = ""
     private val noteService: NoteService = NoteService()
 
+    // Intent with variable bundle
     companion object {
         const val TITLE = "title"
         const val BODY = "body"
@@ -67,12 +68,13 @@ class NoteActivity : AppCompatActivity() {
         noteService.downloadImage(MainActivity.noteItems[MainActivity.currentIndex].noteId, noteImage)
     }
 
+    // Build dialog alert for delete button
     private fun buildAlert() {
         builder = AlertDialog.Builder(this)
         builder.setTitle("Confirm deletion")
         builder.setMessage("Please confirm deletion.")
         builder.setPositiveButton("OK") { dialog, which ->
-            deleteNote()
+            deleteNoteEntry()
         }
         builder.setNegativeButton("Cancel") { dialog, which ->
             Toast.makeText(applicationContext, "Deletion cancelled", Toast.LENGTH_SHORT).show()
@@ -113,7 +115,7 @@ class NoteActivity : AppCompatActivity() {
             true
         }
         R.id.save_note -> {
-            noteService.saveNote(editTitle.text.toString(), editBody.text.toString())
+            noteService.updateNote(editTitle.text.toString(), editBody.text.toString())
             noteService.saveImage(noteImage)
             Toast.makeText(applicationContext, "Note saved", Toast.LENGTH_SHORT).show()
             true
@@ -125,8 +127,9 @@ class NoteActivity : AppCompatActivity() {
         else -> super.onOptionsItemSelected(item)
     }
 
-    private fun deleteNote() {
+    private fun deleteNoteEntry() {
         val position = MainActivity.currentIndex
+        noteService.deleteImage(MainActivity.noteItems[position].noteId)
         noteService.deleteNote(position)
         finish()
     }
