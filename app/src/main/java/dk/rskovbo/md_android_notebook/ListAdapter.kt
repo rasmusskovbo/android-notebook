@@ -1,6 +1,5 @@
 package dk.rskovbo.md_android_notebook
 
-import android.app.AlertDialog
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -10,7 +9,8 @@ import android.widget.*
 class ListAdapter(private val context: Context, private val dataSource: ArrayList<NoteItem>): BaseAdapter() {
 
     private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-    lateinit var builder: AlertDialog.Builder
+    private val noteService = NoteService()
+    private val mainActivity = MainActivity()
 
     override fun getCount(): Int {
         return dataSource.size
@@ -55,7 +55,8 @@ class ListAdapter(private val context: Context, private val dataSource: ArrayLis
 
         val deleteButton: Button = view.findViewById(R.id.deleteButton)
         deleteButton.setOnClickListener {
-            MainActivity.deleteNote(position)
+            noteService.deleteNote(position)
+            this.notifyDataSetChanged()
         }
 
         return view

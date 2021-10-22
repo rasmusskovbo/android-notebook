@@ -24,6 +24,7 @@ class NoteActivity : AppCompatActivity() {
     private val PICK_IMAGE_REQUEST = 234
     private var title: String? = ""
     private var body: String? = ""
+    private val noteService: NoteService = NoteService()
 
     companion object {
         const val TITLE = "title"
@@ -63,7 +64,7 @@ class NoteActivity : AppCompatActivity() {
         setTitle("Notebook")
         editTitle.setText(title)
         editBody.setText(body)
-        MainActivity.downloadImage(MainActivity.noteItems[MainActivity.currentIndex].noteId, noteImage)
+        noteService.downloadImage(MainActivity.noteItems[MainActivity.currentIndex].noteId, noteImage)
     }
 
     private fun buildAlert() {
@@ -112,8 +113,8 @@ class NoteActivity : AppCompatActivity() {
             true
         }
         R.id.save_note -> {
-            MainActivity.saveNote(editTitle.text.toString(), editBody.text.toString())
-            MainActivity.saveImage(noteImage)
+            noteService.saveNote(editTitle.text.toString(), editBody.text.toString())
+            noteService.saveImage(noteImage)
             Toast.makeText(applicationContext, "Note saved", Toast.LENGTH_SHORT).show()
             true
         }
@@ -126,7 +127,7 @@ class NoteActivity : AppCompatActivity() {
 
     private fun deleteNote() {
         val position = MainActivity.currentIndex
-        MainActivity.deleteNote(position)
+        noteService.deleteNote(position)
         finish()
     }
 

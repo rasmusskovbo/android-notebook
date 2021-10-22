@@ -1,99 +1,19 @@
 package dk.rskovbo.md_android_notebook
 
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.drawable.BitmapDrawable
-import android.media.Image
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.ImageView
 import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
-import com.bumptech.glide.Glide
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.ktx.storage
-import java.io.ByteArrayOutputStream
-
 class MainActivity : AppCompatActivity() {
     private lateinit var listView: ListView
+    private val repo = Repo()
+    lateinit var adapter: ListAdapter
 
-    // TODO How to refactor to maintain functionality but avoid memory leaks as suggested?
     companion object {
         var currentIndex = -1
         lateinit var noteItems: ArrayList<NoteItem>
-        lateinit var adapter: ListAdapter
-        val db = Firebase.firestore
-        val storage = Firebase.storage
-
-        // TODO Refactor functions to service class with DB reference if possible.
-        fun saveNote(editedTitle: String, editedBody: String) {
-            val currentNote = noteItems[currentIndex]
-
-            val item = NoteItem(editedTitle, editedBody, currentNote.noteId)
-            noteItems[currentIndex] = item
-
-            db.collection("notes").document(item.noteId).set(item)
-
-            adapter.notifyDataSetChanged()
-        }
-
-        fun saveImage(image: ImageView) {
-            val imageId = noteItems[currentIndex].noteId
-
-            // Get reference to image container and set name as noteID
-            val storageRef = storage.reference.child("images")
-            val imageRef = storageRef.child(imageId)
-
-            // Convert image to byte
-            val bitmap = (image.drawable as BitmapDrawable).bitmap
-            val baos = ByteArrayOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-            val data = baos.toByteArray()
-
-            // Upload byte
-            val uploadTask = imageRef.putBytes(data)
-            uploadTask.addOnSuccessListener {
-                print("Successfully uploaded image")
-            }
-
-        }
-
-        fun downloadImage(imageId: String, imageView: ImageView) {
-            val storageRef = storage.reference.child("images")
-            val imageRef = storageRef.child(imageId)
-
-            // Max size to avoid crashing app due to memory usage
-            val ONE_MEGABYTE: Long = 1024 * 1024
-            imageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener {
-                // Sets the passed imageview reference to the downloaded bitmap version of the image
-                imageView.setImageBitmap(BitmapFactory.decodeByteArray(it, 0, it.size))
-            }.addOnFailureListener {
-                print("Failed to download image")
-            }
-        }
-
-
-
-        fun deleteImage() {
-            // TODO
-        }
-
-        fun deleteNote(position: Int) {
-            // Local
-            val itemToRemove = noteItems[position]
-            noteItems.remove(itemToRemove)
-
-            // Fstore
-            db.collection("notes").document(itemToRemove.noteId).delete()
-
-            // Update listview
-            adapter.notifyDataSetChanged()
-        }
-
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -105,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         setupView()
 
         //addMovieItems(1)
-        //adapter.notifyDataSetChanged()
+        adapter.notifyDataSetChanged()
     }
 
     private fun setupView() {
@@ -115,6 +35,7 @@ class MainActivity : AppCompatActivity() {
 
         listView = findViewById(R.id.listView)
         listView.adapter = adapter
+
         listView.setOnItemClickListener { _, _, position, _ ->
             currentIndex = position
             val element = adapter.getItem(position)
@@ -144,23 +65,25 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Add note to list & firestore
+    // TODO Refactor database part to noteservice
     fun addNote(title: String, body: String) {
         val newNote = NoteItem(title, body)
 
-        val newDocRef = db.collection("notes").document()
+        val newDocRef = repo.db.collection("notes").document()
         val generatedID = newDocRef.id
 
         newNote.noteId = generatedID
-        db.collection("notes").document(newNote.noteId).set(newNote)
+        repo.db.collection("notes").document(newNote.noteId).set(newNote)
 
         noteItems.add(newNote)
         adapter.notifyDataSetChanged()
     }
 
     // Get data from firestore
+    // Todo refactor database part to noteservice
     fun getMovieItems(): ArrayList<NoteItem> {
         var listItems = arrayListOf<NoteItem>()
-        val docRef = db.collection("notes")
+        val docRef = repo.db.collection("notes")
         docRef.get().addOnSuccessListener { document ->
             document?.forEach {
                 val movieItem = it.toObject<NoteItem>()
@@ -173,6 +96,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Create and upload mock data
+    // TODO Refactor to notesrvice
     fun addMovieItems(loops: Int) {
         for(i in 1..loops) {
             val listItems = arrayListOf<NoteItem>()
@@ -228,7 +152,5 @@ class MainActivity : AppCompatActivity() {
                 addNote(it.title, it.body)
             }
         }
-
     }
-
 }
