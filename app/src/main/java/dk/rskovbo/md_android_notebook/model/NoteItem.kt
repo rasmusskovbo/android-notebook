@@ -1,4 +1,4 @@
-package dk.rskovbo.md_android_notebook
+package dk.rskovbo.md_android_notebook.model
 
 class NoteItem(
     var title: String = "",

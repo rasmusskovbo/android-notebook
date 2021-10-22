@@ -1,14 +1,18 @@
-package dk.rskovbo.md_android_notebook
+package dk.rskovbo.md_android_notebook.service
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.widget.ImageView
 import com.google.firebase.firestore.ktx.toObject
+import dk.rskovbo.md_android_notebook.model.NoteItem
+import dk.rskovbo.md_android_notebook.activity.MainActivity
+import dk.rskovbo.md_android_notebook.repository.Repo
 import java.io.ByteArrayOutputStream
 
 class NoteService {
     private val repo: Repo = Repo()
+    private val storageRef = repo.storage.reference.child("images")
 
     // Retrieve all notes from Firebase and bind to list
     fun getAllNotes(): ArrayList<NoteItem> {
@@ -16,12 +20,11 @@ class NoteService {
         val docRef = repo.db.collection("notes")
         docRef.get().addOnSuccessListener { document ->
             document?.forEach {
-                val movieItem = it.toObject<NoteItem>()
-                listItems.add(movieItem)
+                val noteItem = it.toObject<NoteItem>()
+                listItems.add(noteItem)
             }
         }
-        // Async workaround
-        Thread.sleep(2_000)
+        Thread.sleep(1_000)
         return listItems
     }
 
@@ -55,7 +58,6 @@ class NoteService {
         val imageId = MainActivity.noteItems[MainActivity.currentIndex].noteId
 
         // Get reference to image container and set name as noteID
-        val storageRef = repo.storage.reference.child("images")
         val imageRef = storageRef.child(imageId)
 
         // Convert image to byte
@@ -72,11 +74,10 @@ class NoteService {
     }
 
     fun downloadImage(imageId: String, imageView: ImageView) {
-        val storageRef = repo.storage.reference.child("images")
         val imageRef = storageRef.child(imageId)
 
         // Max size to avoid crashing app due to memory usage
-        val ONE_MEGABYTE: Long = 1024 * 1024
+        val ONE_MEGABYTE: Long = 2048 * 2048
         imageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener {
             // Sets the passed imageview reference to the downloaded bitmap version of the image
             imageView.setImageBitmap(BitmapFactory.decodeByteArray(it, 0, it.size))
@@ -86,8 +87,6 @@ class NoteService {
     }
 
     fun deleteImage(imageId: String) {
-        println(imageId)
-        val storageRef = repo.storage.reference.child("images")
         val imageRef = storageRef.child(imageId)
 
         imageRef.delete()

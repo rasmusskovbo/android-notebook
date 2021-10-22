@@ -1,4 +1,4 @@
-package dk.rskovbo.md_android_notebook
+package dk.rskovbo.md_android_notebook.repository
 
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
