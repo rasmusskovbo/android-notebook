@@ -1,10 +1,14 @@
-package dk.rskovbo.md_android_notebook
+package dk.rskovbo.md_android_notebook.activity
 
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
+import dk.rskovbo.md_android_notebook.adapter.ListAdapter
+import dk.rskovbo.md_android_notebook.model.NoteItem
+import dk.rskovbo.md_android_notebook.service.NoteService
+import dk.rskovbo.md_android_notebook.R
 
 class MainActivity : AppCompatActivity() {
     private lateinit var listView: ListView

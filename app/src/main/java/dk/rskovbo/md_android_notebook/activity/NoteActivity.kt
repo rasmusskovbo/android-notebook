@@ -1,4 +1,4 @@
-package dk.rskovbo.md_android_notebook
+package dk.rskovbo.md_android_notebook.activity
 
 import android.app.AlertDialog
 import android.content.Context
@@ -12,6 +12,9 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import dk.rskovbo.md_android_notebook.model.NoteItem
+import dk.rskovbo.md_android_notebook.service.NoteService
+import dk.rskovbo.md_android_notebook.R
 import java.io.IOException
 
 

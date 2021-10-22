@@ -1,10 +1,13 @@
-package dk.rskovbo.md_android_notebook
+package dk.rskovbo.md_android_notebook.adapter
 
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import dk.rskovbo.md_android_notebook.model.NoteItem
+import dk.rskovbo.md_android_notebook.R
+import dk.rskovbo.md_android_notebook.service.NoteService
 
 class ListAdapter(context: Context, private val dataSource: ArrayList<NoteItem>): BaseAdapter() {
 
